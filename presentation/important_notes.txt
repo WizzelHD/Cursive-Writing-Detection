@@ -1,0 +1,68 @@
+Automatische Erkennung handgeschriebener Wörter
+Wortklassifikation (Closed Vocabulary - ResNet)
+Sequenzmodellierung (Open Vocabulary - CRNN)
+
+Individueller Schreibstile
+Zeichen anders/überlappen
+
+Klasse pro Wort -> schlecht Skalierbarkeit/Neue Wörter
+Sequenz flexibel -> Neue Wörter/Kontexterkennung
+
+IAM
+
+
+
+Skallierung Bild -> bilineare Interpolation
+
+
+
+
+
+Daten laden
+Synthetische Daten
+CRNN | ResNet-18 Training (Open Vocabulary)
+Evaluation
+
+
+
+
+
+
+
+
+
+
+Programmablauf
+
+1. Daten laden
+   IAM-Datensatz einlesen (words.txt + Bilder)
+   80% Train / 10% Val / 10% Test
+
+2. Synthetische Daten
+   50.000 Bilder mit Handschrift-Fonts generieren (TRDG)
+   Beim ersten Start generieren, danach von Disk laden
+
+3. CRNN Training (Open Vocabulary)
+   Train: IAM + Synthetisch
+   CTC-Loss, Adam, ReduceLROnPlateau
+   Checkpoint nach jeder Epoche, Early Stopping (patience=8)
+   Plot wird nach jeder Epoche aktualisiert
+
+4. CRNN Evaluation
+   Bestes Modell laden
+   CER auf Testset berechnen
+   Konfusionsanalyse (häufigste Zeichenverwechslungen)
+
+5. ResNet Training (Closed Vocabulary)
+   Train: IAM + Synthetisch
+   CrossEntropy-Loss, Adam, ReduceLROnPlateau
+   Checkpoint nach jeder Epoche, Early Stopping (patience=8)
+   Plot wird nach jeder Epoche aktualisiert
+
+6. ResNet Evaluation
+   Bestes Modell laden
+   Word Accuracy auf Testset berechnen
+
+7. Abschlussbericht
+   Modellvergleich: CRNN (CER) vs. ResNet (Word Accuracy)
+   Grafiken gespeichert in graphs/

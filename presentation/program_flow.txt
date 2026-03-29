@@ -1,0 +1,60 @@
+Technische Konzepte
+
+CRNN-Architektur
+   CNN extrahiert visuelle Merkmale aus dem Bild (spaltenweise)
+   RNN (LSTM) verarbeitet die Sequenz der Merkmale zeitlich
+   Ausgabe: Wahrscheinlichkeit pro Zeichen pro Zeitschritt
+
+CTC (Connectionist Temporal Classification)
+   Kein manuelles Alignment zwischen Bild und Text nötig
+   Sonderzeichen <blank> trennt Wiederholungen (aab -> ab, a-b -> ab)
+   Loss summiert Wahrscheinlichkeiten aller gültigen Pfade zum Zielwort
+   Alignment wird implizit mitgelernt
+
+CER (Character Error Rate)
+   Anteil falsch erkannter Zeichen (Einfügungen, Löschungen, Ersetzungen)
+   Berechnet via Levenshtein-Distanz
+   Niedriger = besser
+
+Cross-Entropy Loss
+   Standardverlust für Klassifikation
+   Loss = -log(P(richtige Klasse))
+   Bestraft niedrige Wahrscheinlichkeit für die korrekte Klasse
+
+ReduceLROnPlateau
+   Halbiert die Lernrate wenn sich die Metrik nicht verbessert
+   CRNN: patience=2, überwacht CER (mode=min)
+   ResNet: patience=2, überwacht Accuracy (mode=max)
+
+Early Stopping
+   Stoppt Training wenn keine Verbesserung über patience=8 Epochen
+   Verhindert Overfitting und spart Rechenzeit
+
+------------------------------------------------------------
+
+Programmablauf
+
+1. Daten laden
+   IAM-Datensatz einlesen (words.txt + Bilder)
+   80% Train / 10% Val / 10% Test
+
+2. Synthetische Daten
+   50.000 Bilder mit Handschrift-Fonts (TRDG)
+   Beim ersten Start generieren, danach von Disk laden
+
+3. Vorverarbeitung
+   Graustufen, Resize auf 32x128 (bilineare Interpolation)
+   Label-Encoding für CRNN / Wort-Index für ResNet
+
+4. Training (CRNN & ResNet)
+   Adam, ReduceLROnPlateau, Early Stopping (patience=8)
+   Checkpoint + Plot nach jeder Epoche
+   CRNN: CTC-Loss | ResNet: CrossEntropy-Loss
+
+5. Evaluation
+   CRNN: CER + Konfusionsanalyse
+   ResNet: Word Accuracy
+
+6. Modellvergleich
+   CRNN (Open Vocabulary) vs. ResNet (Closed Vocabulary)
+   Grafiken gespeichert in graphs/

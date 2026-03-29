@@ -1,0 +1,23 @@
+# Standard-Installation (CPU oder systemabhängige CUDA-Version)
+
+torch==2.5.1
+torchvision==0.20.1
+torchaudio==2.5.1
+numpy
+matplotlib
+opencv-python
+pandas
+scikit-learn
+pillow
+ipykernel
+trdg
+
+
+# Optional: CUDA 12.1 Version (nur falls passende
+# NVIDIA-Treiber und CUDA 12.1 installiert sind)
+# Diese Version ist systemabhängig und daher
+# standardmäßig auskommentiert.
+
+# torch==2.5.1+cu121
+# torchvision==0.20.1+cu121
+# torchaudio==2.5.1+cu121

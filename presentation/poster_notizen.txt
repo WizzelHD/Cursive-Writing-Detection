@@ -1,0 +1,321 @@
+--------------IDEe / Motivation--------------
+
+Ziel des Projekts
+
+Automatische Erkennung handgeschriebener Wörter
+Vergleich zweier Modellierungsansätze:
+Wortklassifikation (Closed Vocabulary - ResNet)
+Sequenzmodellierung (Open Vocabulary - CRNN)
+
+Warum ist Handschrifterkennung schwierig?
+
+Individueller Schreibstile
+Strichführung, Neigung und Proportionen
+Abstände zwischen Buchstaben
+Verbundene oder überlappende Zeichen
+Keine Segmentierung einzelner Buchstaben
+
+Warum ist Wortklassifikation nicht ausreichend?
+
+Jedes Wort eigene Klasse behandelt
+Anzahl Klassen = einzigartiger Wörter
+Schlecht unbekannte Wörter
+Skalierungsproblem bei großem Wortschatz
+Modell lernt visuelle Wortmuster statt sprachlicher Struktur
+
+Warum Sequenzmodellierung?
+
+Zeichenebene statt Wortebene
+Flexibel Wortlängen
+neue Wortkombinationen möglich
+Bildbreite als Zeitdimension
+Kontextmodellierung durch bidirektionale LSTM
+
+Datengrundlage
+
+IAM Handwriting Database
+Wortbildern, keine Sätze
+segmentierte Wörter (status == "ok")
+Graustufenbilder
+Standardisierte Bildgröße (32 × 128)
+
+--------------Daten--------------
+
+Quelle
+
+IAM Handwriting Database
+Gescanntes, handgeschriebenes Textmaterial
+Nutzung auf Wortebene
+
+Verwendete Bestandteile:
+
+Wortbilder aus words.tgz
+Transkriptionen aus ascii/words.txt
+Zuordnung Bild-IDs
+
+Datenfilterung
+
+Status „ok“
+Fehlerhafte segmentierte Wörter
+Einzelnes Wortbild
+Keine Nutzung von Satz- oder Dokumentkontext
+
+Vorverarbeitung
+
+Konvertierung zu Graustufen (1 Kanal)
+Einheitliche Skalierung auf 32 × 128 Pixel
+Feste Eingabegröße für beide Modelle
+Keine Datenaugmentation
+
+Zeichensatz (für CRNN)
+
+Extraktion aller vorkommenden Zeichen
+Zusätzliches Blank-Symbol für CTC
+Zeichenbasierte Kodierung der Transkriptionen
+
+Wortklassen (für ResNet)
+
+Klassen entspricht einzigartiger Wörter
+Klassifikation auf Wortebene
+
+Datensplit
+
+80 % Training
+10 % Validation
+10 % Test
+Reproduzierbarer Split durch Zufallsseed
+
+Charakteristika
+
+Unterschiedliche Wortlängen
+Hohe Variabilität individueller Handschriften
+Teilweise verbundene/überlappende Zeichen
+Klassenungleichverteilung
+
+
+--------------Modelle--------------
+
+Überblick
+
+Vergleich Modellierungsansätze
+Wortklassifikation (ResNet)
+Sequenzmodellierung (CRNN)
+Gleiche Datengrundlage
+Unterschiedliche Lernziele
+
+CRNN (Convolutional Recurrent Neural Network)
+
+Modelltyp:
+Sequenzmodell
+Zeichenbasierte Texterkennung
+Kombination CNN und bidirektionalem LSTM
+
+Architektur:
+Convolutional Layers -> Features
+Reduktion Bildhöhe durch Pooling
+Interpretation der Bildbreite als Zeitdimension
+Zweischichtige bidirektionale LSTM
+
+Trainingsprinzip
+
+CTC-Loss (Connectionist Temporal Classification)
+Alignment zwischen Bildsequenz und Zeichenfolge wird implizit gelernt
+Blank-Symbol zur Modellierung von Nicht-Zeichen
+
+Decoding
+
+Greedy Decoding
+Entfernen von CTC-Blanks
+Zusammenführen wiederholter Zeichen
+Erzeugung der finalen Zeichenkette
+
+Eigenschaften
+
+Zeichenebene
+Flexibel unterschiedlichen Wortlängen
+Neue Wortkombinationen möglich
+
+ResNet (Baseline-Modell)
+
+Modelltyp:
+Klassifikationsmodell
+Wortbasierte Vorhersage
+Keine Sequenzmodellierung
+
+Architektur:
+Residual-Verbindungen
+Anpassung auf 1-Kanal-Graustufenbilder
+Entferntes initiales MaxPooling
+Lineare Klassifikationsschicht mit Anzahl Wortklassen
+
+Trainingsprinzip:
+Cross-Entropy-Loss
+Vorhersage einer einzelnen Wortklasse pro Bild
+Keine Zerlegung in Zeichen
+
+Eigenschaften:
+Wort einer Klasse
+Klasse = einzigartiges Wort
+Schlecht unbekannte Wörter
+Lernt visuelle Wortmuster
+
+--------------Pipeline--------------
+
+Gesamtüberblick
+
+Laden der IAM Handwriting Database
+Filterung der Daten (Status „ok“)
+Vorverarbeitung der Wortbilder
+Erstellung von Trainings-, Validierungs- und Testdaten
+Training der Modelle
+Evaluation
+Fehleranalyse
+Modellvergleich
+
+1. Datenaufbereitung
+
+Parsen der Transkriptionsdatei
+Zuordnung von Bild-ID zu Textlabel
+Ausschluss fehlerhafter Segmentierungen
+Extraktion des Zeicheninventars (für CRNN)
+Erstellung der Wortklassen (für ResNet)
+
+2. Vorverarbeitung
+
+Laden der Wortbilder
+Konvertierung zu Graustufen
+Skalierung auf 32 × 128 Pixel
+Kodierung der Labels
+Zeichenbasiert (CRNN)
+Wortklassenbasiert (ResNet)
+
+3. Datensplit
+
+80 % Training
+10 % Validation
+10 % Test
+
+Reproduzierbare Aufteilung durch festen Seed
+
+4. Training
+
+CRNN:
+Optimierung mit Adam
+CTC-Loss
+ReduceLROnPlateau Scheduler
+Early Stopping
+Checkpoint-Speicherung
+
+ResNet:
+Optimierung mit Adam
+Cross-Entropy-Loss
+Early Stopping
+Checkpoint-Speicherung
+
+5. Evaluation
+
+CRNN:
+Character Error Rate (CER)
+Word Accuracy
+
+ResNet:
+Word Accuracy
+CER (berechnet aus Wortvorhersagen)
+
+6. Fehleranalyse
+
+Berechnung einer zeichenbasierten Confusion Matrix
+Levenshtein-Alignment zur Bestimmung von Substitutionen, Insertions und Deletions
+Identifikation der häufigsten Zeichenverwechslungen
+Visualisierung als Heatmap und Balkendiagramm
+
+7. Modellvergleich
+
+Vergleich der finalen Fehlerraten
+Gegenüberstellung von CER und Wort-Fehlerrate
+Analyse der Generalisierungsfähigkeit
+
+--------------Ergebnisse--------------
+Evaluationsmetriken
+
+CRNN:
+Character Error Rate (CER)
+Word Accuracy
+
+ResNet:
+Word Accuracy
+CER (berechnet aus vorhergesagten Wortklassen)
+
+Trainingsverlauf
+
+CRNN:
+Stetige Reduktion des Trainingsverlusts
+Abnahme der Validation CER über die Epochen
+Stabilisierung durch ReduceLROnPlateau
+Early Stopping verhindert Überanpassung
+
+ResNet:
+Anstieg der Trainingsgenauigkeit
+Validierungsgenauigkeit erreicht Plateau
+Tendenz zur stärkeren Überanpassung bei vielen Klassen
+Early Stopping zur Begrenzung von Overfitting
+
+Quantitative Ergebnisse (Testdaten)
+
+CRNN:
+Test CER: 7.82 %
+Test Word Accuracy: 78.79%
+
+ResNet:
+Test Word Accuracy: 76.85 %
+Test CER: 20.99%
+
+CRNN:
+Niedrige Zeichenfehlerrate
+Robust gegenüber unterschiedlichen Wortlängen
+Stabiler Trainings- und Validierungsverlauf
+Generalisierung auf neue Wortkombinationen möglich
+Nutzt gemeinsame Zeichenrepräsentationen für alle Wörter
+
+ResNet:
+Gute Wortgenauigkeit innerhalb bekannter Klassen
+Begrenzte Generalisierungsfähigkeit
+Stärkere Abhängigkeit von der Klassenverteilung
+Tendenz zur Überanpassung bei großem Wortschatz
+
+Fehleranalyse
+
+CRNN:
+
+Verwechslung visuell ähnlicher Zeichen
+Substitutionen häufiger als Einfügungen oder Löschungen
+Empfindlich bei sehr kurzen oder sehr langen Wörtern
+Fehler entstehen auf Zeichenebene
+
+ResNet:
+Verwechslung ähnlicher Wortbilder
+Fehler insbesondere bei seltenen Klassen
+Bevorzugung häufiger Wortklassen
+Fehler betreffen ganze Wörter statt einzelne Zeichen
+
+Vergleich der Modellansätze
+
+CRNN:
+Zeichenbasierte Sequenzmodellierung
+Flexible Verarbeitung variabler Wortlängen
+Keine explizite Zeichen-Segmentierung notwendig
+Geeignet für offene Wortschätze
+Strukturell passend für OCR-Aufgaben
+
+ResNet
+Wortbasierte Klassifikation
+Keine Zerlegung in Zeichen
+Keine Generalisierung auf unbekannte Wörter
+Abhängigkeit vom festen Klassenraum
+
+Zentrale Erkenntnis
+
+Sequenzmodellierung ist strukturell besser geeignet für Handschrifterkennung
+Wortklassifikation skaliert schlecht bei großem Wortschatz
+Zeichenbasierte Repräsentationen verbessern die Generalisierungsfähigkeit
+CTC ermöglicht Lernen ohne explizite Segmentierung

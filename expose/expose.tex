@@ -1,0 +1,37 @@
+\documentclass[a4paper,12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+\usepackage{parskip} % schönerer Absatzstil
+\usepackage{lmodern} % bessere Schriftart
+
+\begin{document}
+	
+	\section*{Projektidee: Automatische Erkennung handgeschriebener Schreibschrift}
+	
+	\textbf{Name:} Emre Temel und Erik Lang  \\[4pt]
+	
+	\textbf{Motivation / Idee:}\\
+	Die automatische Erkennung handgeschriebener Schreibschrift stellt eine besondere Herausforderung dar, da Buchstaben miteinander verbunden sind und starke Variationen zwischen verschiedenen Handschriften auftreten. Ziel des Projekts ist die Entwicklung eines Modells, das Schreibschrift auf Wort- oder Zeichenebene zuverlässig erkennt. Solche Systeme sind insbesondere relevant für OCR-Anwendungen, die Digitalisierung historischer Dokumente und die automatisierte Dokumentenverarbeitung.
+	
+	\vspace{6pt}
+	
+	\textbf{Related Work / Datensätze:}\\
+	State-of-the-art Ansätze nutzen Convolutional Neural Networks (CNNs) oder hybride Modelle wie CRNN (CNN + LSTM + CTC-Loss). Als Datengrundlage eignet sich insbesondere die \textit{IAM Handwriting Database}, die realistische englische Schreibschrift enthält und häufig in Forschungspublikationen verwendet wird. Alternative Datensätze wären RIMES oder historische Manuskriptdatenbanken wie Washington oder Bentham.
+	
+	\vspace{6pt}
+	
+	\textbf{Geplante Umsetzung:}\\
+	Das Projekt umfasst folgende Schritte:
+	\begin{itemize}
+		\item Vorverarbeitung der IAM-Daten: Normalisierung, Segmentierung, Datenaufteilung.
+		\item Entwicklung eines CNN-Modells zur Extraktion visueller Merkmale der Schreibschrift.
+		\item Vergleich zweier Ansätze: (1) reine Zeichenklassifikation mittels CNN, (2) Worterkennung mittels CRNN.
+		\item Training und Evaluation anhand definierter Metriken wie Accuracy und Confusion Matrix.
+		\item Analyse typischer Fehlerfälle und Diskussion möglicher Erweiterungen (z.\,B. Data Augmentation oder Sequence Modeling).
+	\end{itemize}
+	
+	Das Ziel besteht darin zu demonstrieren, wie moderne Methoden des maschinellen Sehens zur robusten Erkennung von Schreibschrift eingesetzt werden können.
+	
+\end{document}

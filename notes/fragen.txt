@@ -1,0 +1,80 @@
+Fragen:
+
+Was ist collate_fn (in dataset)?
+    Baut Batch zusammen
+
+  Beispiel:
+  Sample 1: "hi"    → [8, 9]
+  Sample 2: "house" → [8, 15, 21, 19, 5]
+
+  Nach Padding:
+  [[ 8,  9,  0,  0,  0],   lengths = [2, 5]
+   [ 8, 15, 21, 19,  5]]
+--------------------------------------------------
+Wie springen die Gewichte pro Epoche? (mit der Lernrate?)
+    Gradient Descent: Loss berechnet, Backpropagation (Welche Richtung?)
+--------------------------------------------------
+was ist <ins>?
+    Zeichen eingefügt
+    Ground Truth: "cat"
+    Vorhersage:   "coat
+--------------------------------------------------
+Wie könnte man die Ergebnisse verbessern? Mehr Epochen,  Bilder oder Layer, größere Batches?
+    Mehr Bilder, größere Bilder, mehr Layer, größeres LSTM
+--------------------------------------------------
+Was wurde genutzt? Wörter Sätze Text? und warum?
+    Längere Ausgabesequenzen -> schwereres CTC-Training
+    ResNet brauch Wörter
+--------------------------------------------------
+Was ist Loss in dem Kontext?
+
+--------------------------------------------------
+Wird bei ResNet Klassen(gleiche Wörter) zusammengefasst?
+    Woher erkennt es dass es zu selben Klasse gehört?
+--------------------------------------------------
+Wie funktioniert die Skallierung der Bilder von 32x128?
+    -> Skallierung Bild -> bilineare Interpolation
+
+
+
+Begriffe:
+
+CER                 Character Error rate
+CRNN                Convolutional Recurrent Neural Network
+LSTM                Long Short Term Memory
+CNN                 NN, mit Filtern über Bilder läuft, Features erkennt und zur Klassifikation verwendet.
+ResNet      
+CTC                 Berechnet Wahrscheinlichkeit der Buchstaben
+Greedy-Decoding     Entfernt Wiederholungen. helo und hel(blank)lo -> hello
+Blank               Unterscheidet überlappende Wörter/Buchstaben
+Loss
+Levenshtein         Distanz zwischen zwei Strings (Einfügungen, Löschungen und Ersetzungen)
+Transform
+Tensor              Matrix
+Scheduler/ReduceLROnPlateau     Ändert Lernrate je nach Epochenänderunge
+Optimzer/Adam       Anpassung der Gewichte
+Cross-Entropy-Loss  Softmax (Wahrscheinlichkeiten)
+OCR(Optical Character Recognition)      Automatisch Texterkennung  
+Resize              torch.Resize (bilinear Interpolation)  
+   
+
+
+
+Konzepte:
+
+CRNN
+Stell dir vor, das Modell scannt ein Wort Streifen für Streifen (1 bis 10):
+Streifen 1-3: Das Modell sieht einen senkrechten Strich. Es ist unsicher: "Könnte ein 'l' oder ein 'I' sein."
+Streifen 4-6: Plötzlich erkennt das Modell in der Mitte des Bildes einen kleinen waagerechten Verbindungsstrich.
+Streifen 7-10: Es folgt wieder ein senkrechter Strich.
+
+LSTM
+Das Gedächtnis des LSTMs sagt nun: "Moment! Wenn ich erst einen Stab habe, dann eine Verbindung in der Mitte und dann wieder einen Stab, dann ist das Gesamtpaket ein 'H'."
+Wäre nach dem ersten Stab (Streifen 1-3) direkt eine Lücke oder ein neuer, ganz anderer Buchstabe gekommen, hätte das Modell das "Urteil" gefällt: "Okay, das war nur ein 'l'."
+
+Blank
+Zusammengefasst: Was ist das Blank?
+Es ist ein spezielles Zeichen (meistens mit der ID 0).
+Es dient als Trennwand.
+Es erlaubt der KI, beliebig lange Buchstaben zu zeichnen (z.B. 10 Streifen für ein breites 'W') und trotzdem zwischen W und WW zu unterscheiden.
+

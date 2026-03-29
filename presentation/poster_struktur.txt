@@ -1,0 +1,142 @@
+POSTER-STRUKTUR
+Projekt: Automatische Erkennung handgeschriebener Schreibschrift
+
+
+1) KERNAUSSAGE (oben, gross)
+
+Sequenzmodellierung (CRNN + CTC) ist fuer Handschrift-OCR geeigneter als reine Wortklassifikation (ResNet).
+
+Optionaler Untertitel:
+Vergleich zweier Paradigmen auf der IAM Handwriting Database.
+
+
+2) PROBLEM UND ZIEL
+
+Kurz beantworten:
+- Warum ist Handschrift schwer?
+- Warum reicht Wortklassifikation nicht?
+- Warum Sequenzmodellierung?
+
+Inhalt:
+- Hohe Variabilitaet von Schreibstilen
+- Variable Wortlaengen und uneinheitliche Zeichenformen
+- Visuell aehnliche Zeichen (z. B. r/n, a/o)
+- Ziel: Vergleich von ResNet (Wortklasse) vs. CRNN (Zeichenfolge)
+
+Visual:
+- 2-3 Beispielwortbilder aus IAM
+
+
+3) DATEN UND PREPROCESSING
+
+Inhalt:
+- Datensatz: IAM Handwriting Database (Wortebene)
+- Verwendet: words.tgz + ascii/words.txt
+- Filter: nur status == ok
+- Preprocessing: Graustufen, Resize auf 32x128
+- Split: 80% Train / 10% Val / 10% Test
+
+Visual:
+- Kleines Blockdiagramm "Raw -> Filter -> Resize -> Split"
+
+
+4) METHODENVERGLEICH (zentral)
+
+Links: CRNN
+- CNN -> BiLSTM -> Linear -> CTC
+- Zeichenbasiert
+- Kann unbekannte Woerter zusammensetzen
+- Generalisierung
+
+Rechts: ResNet
+- ResNet18-basierte Wortklassifikation
+- Jedes Wort = feste Klasse
+- Keine Generalisierung auf neue Wortformen
+- In-Class-Klassifikation
+
+Darunter kompakte Tabelle:
+- Vorhersageeinheit: Zeichenfolge vs. Wortklasse
+- Wortschatz: offen vs. geschlossen
+
+
+5) TRAINING UND PIPELINE
+
+Pipeline (als Flowchart):
+IAM -> Parsing/Filter -> Dataset -> Train/Val/Test ->
+CRNN Training + ResNet Training -> Evaluation -> Fehleranalyse -> Vergleichsplots
+
+Trainingsdetails (kurz):
+- Optimizer: Adam
+- Epochen: bis 40
+- Early Stopping + Checkpoints
+- Resume-Training moeglich
+
+
+6) ERGEBNISSE (groesster Block)
+
+Finale Testwerte:
+- CRNN: CER 7.82%, Word Accuracy 78.79%
+- ResNet: CER 20.99%, Word Accuracy 76.85%
+
+Wichtig fuer Leser:
+- CER = Fehler auf Zeichenebene (niedriger ist besser)
+- Word Accuracy = exakte Worttreffer (hoeher ist besser)
+
+Visuals:
+- model_comparison.png (Error-Vergleich)
+- accuracy_comparison.png (Accuracy-Vergleich)
+- crnn_train_loss.png, crnn_val_metric.png
+- resnet_train_loss.png, resnet_val_metric.png
+
+
+7) FEHLERANALYSE
+
+Inhalt:
+- Haeufigste Verwechslungen aus Levenshtein-Alignment
+- Typische Fehler: r<->n, a<->o, Deletions bei schmalen Zeichen
+
+Visuals:
+- crnn_top_confusions_heatmap.png (heatmap)
+
+Kernaussage:
+- Fehler sind strukturiert (visuelle Aehnlichkeit), nicht zufaellig.
+
+
+8) FAZIT UND LIMITATIONEN
+
+Fazit:
+- CRNN liefert bessere CER bei leicht besserer Word Accuracy.
+- Fuer OCR ist zeichenbasierte Modellierung sinnvoller als reine Wortklassen.
+
+Limitationen:
+- Keine Sprachmodell-Nachkorrektur
+- Keine Datenaugmentation
+- Evaluation auf Wortebene, nicht Satzebene
+
+Ausblick (1 Zeile):
+- Transformer-basierte OCR und Language-Model-Postcorrection.
+
+
+9) EMPFOHLENES LAYOUT (A1/A0)
+
+3-Spalten-Layout:
+- Spalte 1: Problem, Daten, Preprocessing
+- Spalte 2: Methodenvergleich + Pipeline
+- Spalte 3: Ergebnisse, Fehleranalyse, Fazit
+
+Regeln:
+- Keine Code-Snippets
+- Wenig Fliesstext, kurze Bulletpoints
+- Jede Sektion mit mindestens 1 Visual
+- Gleiche Farblogik pro Modell (z. B. CRNN blau, ResNet rot)
+
+
+10) MINIMUM-CONTENT, FALLS PLATZ KNAPP
+
+Unbedingt behalten:
+- Problem/Ziel
+- Methodenvergleich (CRNN vs ResNet)
+- Finale Zahlen (CER + Accuracy)
+- Ein Error-Plot + ein Accuracy-Plot
+- Ein Confusion-Plot
+- Kurzes Fazit
